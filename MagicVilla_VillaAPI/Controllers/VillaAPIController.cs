@@ -7,7 +7,7 @@ namespace MagicVilla_VillaAPI.Controllers
 {
     [Route("api/VillaAPI")]
     //[Route("api/[controller]")]
-    //[ApiController]
+    [ApiController] // if using ModelState for validation
     public class VillaAPIController : ControllerBase
     {
         [HttpGet]
@@ -41,10 +41,6 @@ namespace MagicVilla_VillaAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public ActionResult<VillaDto> CreateVilla([FromBody] VillaDto villaDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest (ModelState);
-            }
             if (villaDto == null)
             {
                 return BadRequest();
