@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MagicVilla_VillaAPI.Models.Dto;
 using MagicVilla_VillaAPI.Data;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace MagicVilla_VillaAPI.Controllers
 {
@@ -95,6 +96,35 @@ namespace MagicVilla_VillaAPI.Controllers
             villa.Name = villaDto.Name;
             villa.Sqft = villaDto.Sqft;
             villa.Occupancy = villaDto.Occupancy;
+            return NoContent();
+        }
+
+        //Microsoft.AspNetCore.JsonPatch
+        //Microsoft.AspNetCore.Mvc.NewtonsoftJson
+        //
+        //in swagger according to https://jsonpatch.com/ for replace
+        // path: "/name"
+        // op: "replace"
+        // value: "new value"
+        [HttpPatch("{id:int}", Name = "UpdatePartialVilla")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult UpdatePartialVilla(int id, JsonPatchDocument<VillaDto> patchDto)
+        {
+            if (patchDto == null || id == 0)
+            {
+                return BadRequest();
+            }
+            var villa = VillaStore.villaList.FirstOrDefault(u => u.Id == id);
+            if (villa == null)
+            {
+                return BadRequest();
+            }
+            patchDto.ApplyTo(villa, ModelState); //in ModelState will be saved errors
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
             return NoContent();
         }
 
