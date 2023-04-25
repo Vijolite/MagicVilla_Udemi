@@ -9,7 +9,7 @@ namespace MagicVilla_VillaAPI.Controllers
     [Route("api/VillaAPI")]
     //[Route("api/[controller]")]
     [ApiController] // if using ModelState for validation
-    public class VillaAPIController : ControllerBase
+    public class VillaAPIController : ControllerBase 
     {
         private readonly ILogger<VillaAPIController> _logger;
         public VillaAPIController(ILogger<VillaAPIController> logger)
@@ -28,7 +28,6 @@ namespace MagicVilla_VillaAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status406NotAcceptable)]
         public ActionResult<VillaDto> GetVilla(int id)
         {
             if (id == 0)
