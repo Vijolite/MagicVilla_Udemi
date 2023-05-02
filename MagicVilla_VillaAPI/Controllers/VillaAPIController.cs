@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using MagicVilla_VillaAPI.Logging;
 using System;
 using System.Diagnostics;
+using Amazon.DynamoDBv2.DataModel;
 
 namespace MagicVilla_VillaAPI.Controllers
 {
@@ -15,10 +16,22 @@ namespace MagicVilla_VillaAPI.Controllers
     public class VillaAPIController : ControllerBase 
     {
         private readonly ILogging _logger;
-        public VillaAPIController(ILogging logger)
+        private readonly IDynamoDBContext _dynamoDBContext;
+        public VillaAPIController(ILogging logger, IDynamoDBContext dynamoDBContext)
         {
             _logger = logger;
+            _dynamoDBContext = dynamoDBContext;
         }
+
+        [Route("get/")]
+        [HttpGet]
+        public async Task<IActionResult> Get()
+        {
+            // LoadAsync is used to load single item
+            var villa = await _dynamoDBContext.LoadAsync<VillaDB>(1, "Villa Nr 1");
+            return Ok(villa);
+        }
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<VillaDto>> GetVillas()

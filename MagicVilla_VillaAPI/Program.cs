@@ -1,3 +1,6 @@
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using Amazon.Extensions.NETCore.Setup;
 using MagicVilla_VillaAPI.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,8 +17,15 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddSingleton<ILogging, Logging>(); //new service registration AddSingleton - 1 ex; AddAcoped - 1ex for each request; AddTransient
 //builder.Services.AddSingleton<ILogging, Logging_v2>();
+
+//add AWS
+AWSOptions awsOptions = builder.Configuration.GetAWSOptions();
+builder.Services.AddDefaultAWSOptions(awsOptions);
+builder.Services.AddAWSService<IAmazonDynamoDB>();
+builder.Services.AddScoped<IDynamoDBContext, DynamoDBContext>();
 
 var app = builder.Build();
 
