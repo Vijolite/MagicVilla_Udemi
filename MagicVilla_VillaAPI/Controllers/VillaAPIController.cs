@@ -25,16 +25,6 @@ namespace MagicVilla_VillaAPI.Controllers
             _dynamoDBContext = dynamoDBContext;
         }
 
-        [Route("get/")]
-        [HttpGet]
-        public async Task<IActionResult> Get()
-        {
-            // LoadAsync is used to load single item
-            var villa = await _dynamoDBContext.LoadAsync<VillaDB>(1);
-            VillaDto villaDto = new VillaDto { Id = villa.Id, Name = villa.Name, Info = JsonSerializer.Deserialize<Info>(villa.Body) };
-            return Ok(villaDto);
-        }
-
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<VillaDto>> GetVillas()
@@ -47,19 +37,20 @@ namespace MagicVilla_VillaAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public ActionResult<VillaDto> GetVilla(int id)
+        public async Task<IActionResult> GetVilla(int id)
         {
             if (id == 0)
             {
                 _logger.Log("Get Villa Error with Id " + id,"error");
                 return BadRequest();
             }
-            var villa = VillaStore.villaList.FirstOrDefault(u => u.Id == id);
+            var villa = await _dynamoDBContext.LoadAsync<VillaDB>(id);
             if (villa == null)
             {
                 return NotFound();
             }
-            return Ok(villa);
+            VillaDto villaDto = new VillaDto { Id = villa.Id, Name = villa.Name, Info = JsonSerializer.Deserialize<Info>(villa.Body) };
+            return Ok(villaDto);
         }
 
         [HttpPost]
