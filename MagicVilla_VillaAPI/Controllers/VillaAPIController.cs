@@ -8,12 +8,12 @@ using MagicVilla_VillaAPI.Logging;
 using System;
 using System.Diagnostics;
 using Amazon.DynamoDBv2.DataModel;
+using System.Text.Json;
 
 namespace MagicVilla_VillaAPI.Controllers
 {
     [Route("api/VillaAPI")]
-    //[Route("api/[controller]")]
-    [ApiController] // if using ModelState for validation
+    [ApiController] 
     public class VillaAPIController : ControllerBase 
     {
         private readonly ILogging _logger;
@@ -59,13 +59,12 @@ namespace MagicVilla_VillaAPI.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<VillaDto> CreateVilla([FromBody] VillaDto villaDto)
+        public async Task<ActionResult> CreateVilla([FromBody] VillaDto villaDto)
         {
-            /*            if (!ModelState.IsValid) // if not using APIController
-                        {
-                            return BadRequest (ModelState);
-                        }*/
-            if (VillaStore.villaList.FirstOrDefault(u => u.Name.ToLower() == villaDto.Name.ToLower()) != null)
+            var conditions = new List<ScanCondition>();
+            var villas = await _dynamoDBContext.ScanAsync<VillaDB>(conditions).GetRemainingAsync();
+
+            if (villas.FirstOrDefault(u => u.Name.ToLower() == villaDto.Name.ToLower()) != null)
             {
                 ModelState.AddModelError("CustomError", "Villa already exists!");
                 return BadRequest(ModelState);
@@ -78,8 +77,10 @@ namespace MagicVilla_VillaAPI.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
-            villaDto.Id = VillaStore.villaList.OrderByDescending(u => u.Id).FirstOrDefault().Id+1;          
-            VillaStore.villaList.Add(villaDto);
+
+            villaDto.Id = villas.OrderByDescending(v => v.Id).FirstOrDefault().Id+1;
+            VillaDB villaDB = new VillaDB(villaDto);
+            await _dynamoDBContext.SaveAsync(villaDB);
             return CreatedAtRoute("GetVilla",new { id = villaDto.Id }, villaDto); //add the url of new obj to response
         }
 
