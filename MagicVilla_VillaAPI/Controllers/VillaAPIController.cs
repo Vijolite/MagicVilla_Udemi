@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MagicVilla_VillaAPI.Models.Dto;
+using MagicVilla_VillaAPI.Models;
 using MagicVilla_VillaAPI.Data;
 using Microsoft.AspNetCore.JsonPatch;
 using MagicVilla_VillaAPI.Logging;
 using System;
 using System.Diagnostics;
 using Amazon.DynamoDBv2.DataModel;
+using System.Text.Json;
 
 namespace MagicVilla_VillaAPI.Controllers
 {
@@ -28,8 +30,9 @@ namespace MagicVilla_VillaAPI.Controllers
         public async Task<IActionResult> Get()
         {
             // LoadAsync is used to load single item
-            var villa = await _dynamoDBContext.LoadAsync<VillaDB>(1, "Villa Nr 1");
-            return Ok(villa);
+            var villa = await _dynamoDBContext.LoadAsync<VillaDB>(1);
+            VillaDto villaDto = new VillaDto { Id = villa.Id, Name = villa.Name, Info = JsonSerializer.Deserialize<Info>(villa.Body) };
+            return Ok(villaDto);
         }
 
         [HttpGet]
