@@ -9,10 +9,8 @@ namespace MagicVilla_VillaAPI.Models
     {
         [DynamoDBHashKey("Id")]
         public int Id {get; set;}
-        //[DynamoDBRangeKey("Name")]
         public string Name { get; set; }
         public string Body { get; set; }
-        //public int Sqft { get; set; }
         public string CreatedDate { get; set; }
         public string UpdatedDate { get; set; }
 

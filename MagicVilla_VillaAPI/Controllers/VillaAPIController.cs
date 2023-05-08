@@ -94,30 +94,36 @@ namespace MagicVilla_VillaAPI.Controllers
             {
                 return BadRequest();
             }
-            //var villa = VillaStore.villaList.FirstOrDefault(u => u.Id == id);
             var villa = await _dynamoDBContext.LoadAsync<VillaDB>(id);
             if (villa == null)
             {
                 return NotFound();
             }
             await _dynamoDBContext.DeleteAsync<VillaDB>(id);
-            //VillaStore.villaList.Remove(villa);
             return NoContent();
         }
 
         [HttpPut("{id:int}", Name = "UpdateVilla")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult UpdateVilla (int id, [FromBody] VillaDto villaDto)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateVilla (int id, [FromBody] VillaDto villaDto)
         {
             if (villaDto == null || id != villaDto.Id)
             {
                 return BadRequest();
             }
-            var villa = VillaStore.villaList.FirstOrDefault(u => u.Id == id);
-            villa.Name = villaDto.Name;
+            var villaDB = await _dynamoDBContext.LoadAsync<VillaDB>(id);
+            if (villaDB == null)
+            {
+                return NotFound();
+            }
+            villaDB = new VillaDB(villaDto);
+            await _dynamoDBContext.SaveAsync(villaDB);
+            //var villa = VillaStore.villaList.FirstOrDefault(u => u.Id == id);
+/*            villa.Name = villaDto.Name;
             villa.Sqft = villaDto.Sqft;
-            villa.Occupancy = villaDto.Occupancy;
+            villa.Occupancy = villaDto.Occupancy;*/
             return NoContent();
         }
 
