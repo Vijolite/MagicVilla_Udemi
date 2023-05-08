@@ -27,10 +27,22 @@ namespace MagicVilla_VillaAPI.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<VillaDto>> GetVillas()
+/*        public ActionResult<IEnumerable<VillaDto>> GetVillas()
         {
             _logger.Log("Getting all villas","");
             return Ok(VillaStore.villaList);
+        }*/
+
+        public async Task<IActionResult> GetVillas()
+        {
+            _logger.Log("Getting all villas", "");
+            var conditions = new List<ScanCondition>(); 
+            var villas = await _dynamoDBContext.ScanAsync<VillaDB>(conditions).GetRemainingAsync();
+            // var villas = await _dynamoDBContext.LoadAsync<VillaDB>();
+            var villasDtoList = villas.Select(v => new VillaDto { Id = v.Id, Name = v.Name, Info = JsonSerializer.Deserialize<Info>(v.Body) });
+            //VillaDto villaDto = new VillaDto { Id = villa.Id, Name = villa.Name, Info = JsonSerializer.Deserialize<Info>(villa.Body) };
+            return Ok(villasDtoList);
+
         }
 
         [HttpGet("{id}", Name = "GetVilla")]
