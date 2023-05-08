@@ -120,10 +120,6 @@ namespace MagicVilla_VillaAPI.Controllers
             }
             villaDB = new VillaDB(villaDto);
             await _dynamoDBContext.SaveAsync(villaDB);
-            //var villa = VillaStore.villaList.FirstOrDefault(u => u.Id == id);
-/*            villa.Name = villaDto.Name;
-            villa.Sqft = villaDto.Sqft;
-            villa.Occupancy = villaDto.Occupancy;*/
             return NoContent();
         }
 
@@ -137,22 +133,26 @@ namespace MagicVilla_VillaAPI.Controllers
         [HttpPatch("{id:int}", Name = "UpdatePartialVilla")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IActionResult UpdatePartialVilla(int id, JsonPatchDocument<VillaDto> patchDto)
+        public async Task<IActionResult> UpdatePartialVilla(int id, JsonPatchDocument<VillaDto> patchDto)
         {
             if (patchDto == null || id == 0)
             {
                 return BadRequest();
             }
-            var villa = VillaStore.villaList.FirstOrDefault(u => u.Id == id);
-            if (villa == null)
+            //var villa = VillaStore.villaList.FirstOrDefault(u => u.Id == id);
+            var villaDB = await _dynamoDBContext.LoadAsync<VillaDB>(id);
+            if (villaDB == null)
             {
                 return BadRequest();
             }
+            var villa = new VillaDto(villaDB);
             patchDto.ApplyTo(villa, ModelState); //in ModelState will be saved errors
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
+            villaDB = new VillaDB(villa);
+            await _dynamoDBContext.SaveAsync(villaDB);
             return NoContent();
         }
 
