@@ -2,6 +2,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.Extensions.NETCore.Setup;
 using MagicVilla_VillaAPI.Logging;
+using MagicVilla_VillaAPI.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +19,7 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSingleton<ILogging, Logging>(); //new service registration AddSingleton - 1 ex; AddAcoped - 1ex for each request; AddTransient
+builder.Services.AddSingleton<ILogging, Logging>(); //new service registration AddSingleton - 1 ex; AddScoped - 1ex for each request; AddTransient
 //builder.Services.AddSingleton<ILogging, Logging_v2>();
 
 //add AWS
@@ -26,6 +27,9 @@ AWSOptions awsOptions = builder.Configuration.GetAWSOptions();
 builder.Services.AddDefaultAWSOptions(awsOptions);
 builder.Services.AddAWSService<IAmazonDynamoDB>();
 builder.Services.AddScoped<IDynamoDBContext, DynamoDBContext>();
+
+//Get a secret's value from SecretManager - just an example no need for now
+Console.WriteLine(await Secrets.GetOneSecretPairValue("key1"));
 
 var app = builder.Build();
 
@@ -42,4 +46,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+app.Run(); // http://localhost:7056/swagger/index.html

@@ -139,7 +139,6 @@ namespace MagicVilla_VillaAPI.Controllers
             {
                 return BadRequest();
             }
-            //var villa = VillaStore.villaList.FirstOrDefault(u => u.Id == id);
             var villaDB = await _dynamoDBContext.LoadAsync<VillaDB>(id);
             if (villaDB == null)
             {

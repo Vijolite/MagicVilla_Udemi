@@ -4,17 +4,19 @@ using System.Text.Json;
 
 namespace MagicVilla_VillaAPI.Models
 {
-    [DynamoDBTable("Villas")]
+    //[DynamoDBTable("Villas")] //original table
+    //[DynamoDBTable("Villas_terraform")] //doesn't work for now perhaps because of id type
+    [DynamoDBTable("Villas_test")]
     public class VillaDB
     {
         [DynamoDBHashKey("Id")]
-        public int Id {get; set;}
+        public int Id { get; set; }
         public string Name { get; set; }
         public string Body { get; set; }
         public string CreatedDate { get; set; }
         public string UpdatedDate { get; set; }
 
-        public VillaDB (VillaDto villaDto)
+        public VillaDB(VillaDto villaDto)
         {
             Id = villaDto.Id;
             Name = villaDto.Name;
@@ -22,7 +24,7 @@ namespace MagicVilla_VillaAPI.Models
             CreatedDate = DateTime.Now.ToString("dd-MM-yyyy");
             UpdatedDate = null;
         }
-        public VillaDB ()
+        public VillaDB()
         {
 
         }
