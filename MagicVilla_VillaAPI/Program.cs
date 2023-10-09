@@ -3,6 +3,7 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.Extensions.NETCore.Setup;
 using MagicVilla_VillaAPI.Logging;
 using MagicVilla_VillaAPI.Helpers;
+using Amazon;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +30,11 @@ builder.Services.AddAWSService<IAmazonDynamoDB>();
 builder.Services.AddScoped<IDynamoDBContext, DynamoDBContext>();
 
 //Get a secret's value from SecretManager - just an example no need for now
-Console.WriteLine(await Secrets.GetOneSecretPairValue("key1"));
+//Deleted to secrets from Seret Manager
+//Console.WriteLine(await Secrets.GetOneSecretPairValue("key1"));
+
+//Get a secret's value from SSM parameters - just an example no need for now
+//Console.WriteLine(SecretsSSM.GetSecretUrl());
 
 var app = builder.Build();
 

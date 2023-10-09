@@ -9,12 +9,13 @@ using System;
 using System.Diagnostics;
 using Amazon.DynamoDBv2.DataModel;
 using System.Text.Json;
+using MagicVilla_VillaAPI.Helpers;
 
 namespace MagicVilla_VillaAPI.Controllers
 {
     [Route("api/VillaAPI")]
-    [ApiController] 
-    public class VillaAPIController : ControllerBase 
+    [ApiController]
+    public class VillaAPIController : ControllerBase
     {
         private readonly ILogging _logger;
         private readonly IDynamoDBContext _dynamoDBContext;
@@ -29,7 +30,7 @@ namespace MagicVilla_VillaAPI.Controllers
         public async Task<IActionResult> GetVillas()
         {
             _logger.Log("Getting all villas", "");
-            var conditions = new List<ScanCondition>(); 
+            var conditions = new List<ScanCondition>();
             var villas = await _dynamoDBContext.ScanAsync<VillaDB>(conditions).GetRemainingAsync();
             var villasDtoList = villas.Select(v => new VillaDto(v));
             return Ok(villasDtoList);
@@ -43,7 +44,7 @@ namespace MagicVilla_VillaAPI.Controllers
         {
             if (id == 0)
             {
-                _logger.Log("Get Villa Error with Id " + id,"error");
+                _logger.Log("Get Villa Error with Id " + id, "error");
                 return BadRequest();
             }
             var villa = await _dynamoDBContext.LoadAsync<VillaDB>(id);
@@ -78,17 +79,18 @@ namespace MagicVilla_VillaAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
-            villaDto.Id = villas.OrderByDescending(v => v.Id).FirstOrDefault().Id+1;
+            villaDto.Id = villas.OrderByDescending(v => v.Id).FirstOrDefault().Id + 1;
             VillaDB villaDB = new VillaDB(villaDto);
             await _dynamoDBContext.SaveAsync(villaDB);
-            return CreatedAtRoute("GetVilla",new { id = villaDto.Id }, villaDto); //add the url of new obj to response
+            await VillaSQS.SendMassageToNewAddedVillasSQS($"add new villa - {villaDB.Name}");
+            return CreatedAtRoute("GetVilla", new { id = villaDto.Id }, villaDto); //add the url of new obj to response
         }
 
         [HttpDelete("{id}", Name = "DeleteVilla")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteVilla (int id)
+        public async Task<IActionResult> DeleteVilla(int id)
         {
             if (id == 0)
             {
@@ -107,7 +109,7 @@ namespace MagicVilla_VillaAPI.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateVilla (int id, [FromBody] VillaDto villaDto)
+        public async Task<IActionResult> UpdateVilla(int id, [FromBody] VillaDto villaDto)
         {
             if (villaDto == null || id != villaDto.Id)
             {
