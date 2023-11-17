@@ -4,9 +4,9 @@ using System.Text.Json;
 
 namespace MagicVilla_VillaAPI.Models
 {
-    //[DynamoDBTable("Villas")] //original table
+    [DynamoDBTable("Villas")] //original table
     //[DynamoDBTable("Villas_terraform")] //doesn't work for now perhaps because of id type
-    [DynamoDBTable("Villas_test")]
+    //[DynamoDBTable("Villas_test")]
     public class VillaDB
     {
         [DynamoDBHashKey("Id")]
