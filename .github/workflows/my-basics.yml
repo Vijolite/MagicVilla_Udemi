@@ -1,6 +1,6 @@
 name: CI-CD-pipeline-to-AWS-Elastic-Bean-Stock 
 env:
-  EB_PACKAGE_S3_BUCKET_NAME: "vijolite-for-villas"
+  EB_PACKAGE_S3_BUCKET_NAME: "vijolite-villas"
   EB_APPLICATION_NAME: "MyApp"
   EB_ENVIRONMENT_NAME: "MyApp-env"
   DEPLOY_PACKAGE_NAME: "villas_app_${{github.sha}}.zip"
