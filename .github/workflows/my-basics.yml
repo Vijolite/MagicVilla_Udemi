@@ -4,7 +4,7 @@ env:
   EB_APPLICATION_NAME: "MyApp"
   EB_ENVIRONMENT_NAME: "MyApp-env"
   DEPLOY_PACKAGE_NAME: "villas_app_${{github.sha}}.zip"
-  AWS_REGION_NAME: "us-east-1"
+  AWS_REGION_NAME: "eu-west-2"
   
 
 on:
@@ -60,7 +60,7 @@ jobs:
       run: aws elasticbeanstalk update-environment --environment-name ${{env.EB_ENVIRONMENT_NAME}} --version-label "Ver-${{github.sha}}"
 
     - name: Print happy message for CD finish
-      run: echo "CD pipeline finished successfully recommit"
+      run: echo "CD pipeline finished successfully"
       
     
     
